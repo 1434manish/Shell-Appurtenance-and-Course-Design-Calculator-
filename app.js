@@ -609,7 +609,7 @@
   });
   $s('course-count').addEventListener('change',makeCourseRows);
   window.addEventListener('mh-general-sync',calculateShell);
-  $('shell-reset').addEventListener('click',()=>{
+document.getElementById('shell-reset').addEventListener('click',()=>{
     $s('diameter').value='';$s('tank-height').value='';$s('radiography').value='';
     $s('joint-efficiency').value='';$s('corrosion-allowance').value='1.5';$s('specific-gravity').value='';
     $s('course-count').value='8';makeCourseRows();
