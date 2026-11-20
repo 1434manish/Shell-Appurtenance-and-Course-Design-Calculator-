@@ -349,3 +349,47 @@ footer { margin-top: 18px; padding: 10px 8px max(12px, env(safe-area-inset-botto
   .shell-reset-light { margin-left: auto; }
   #nozzle-panel .input-panel, #nozzle-panel > .result-card { max-width: none; }
 }
+
+/* Final width and table-alignment refinement: keep every tab within Tab 1's width. */
+.app-shell {
+  width: min(calc(100% - 32px), 720px);
+}
+
+@media (min-width: 601px) and (max-width: 760px) {
+  .app-shell {
+    width: min(calc(100% - 24px), 720px);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-shell {
+    width: min(calc(100% - 20px), 480px);
+  }
+}
+
+/* Compact shell-course entry table: reduce the empty space between its columns. */
+.shell-course-input-table {
+  table-layout: fixed;
+}
+.shell-course-input-table th,
+.shell-course-input-table td {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.shell-course-input-table th:first-child,
+.shell-course-input-table td:first-child {
+  width: 46%;
+}
+.shell-course-input-table th:nth-child(2),
+.shell-course-input-table td:nth-child(2) {
+  width: 54%;
+}
+.shell-course-input-table input {
+  width: 100%;
+  max-width: 150px;
+}
+
+/* Center both IS 803 sub-headings, matching the API 650 headings. */
+.design-result-table thead tr:nth-child(2) th {
+  text-align: center;
+}
