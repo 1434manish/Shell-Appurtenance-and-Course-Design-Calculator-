@@ -599,7 +599,7 @@
     $s(id).addEventListener('input',calculateShell);
     $s(id).addEventListener('change',calculateShell);
   });
-  $('fill-all-heights').addEventListener('click',()=>{
+  document.getElementById('fill-all-heights').addEventListener('click',()=>{
     const fields=[...document.querySelectorAll('.shell-course-height')];
     if(!fields.length) return;
     const firstValue=fields[0].value.trim();

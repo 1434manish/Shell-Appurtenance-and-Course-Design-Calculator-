@@ -314,3 +314,38 @@ footer {
 }
 
 .input-panel label small { display:block; margin-top:3px; color:#778391; font-size:11px; font-weight:500; }
+
+
+/* Portrait-first mobile layout, while retaining the wider desktop workspace. */
+.app-header h1 span { display: block; }
+.app-header h1 { text-wrap: balance; }
+footer { margin-top: 18px; padding: 10px 8px max(12px, env(safe-area-inset-bottom)); text-align: center; }
+.credit { margin-top: 0; color: #637181; font-size: 12px; font-weight: 650; line-height: 1.5; }
+
+@media (max-width: 600px) {
+  .app-shell { width: min(calc(100% - 20px), 480px); padding-top: max(14px, env(safe-area-inset-top)); }
+  .app-header { padding: 12px 4px 16px; }
+  .app-header h1 { font-size: clamp(20px, 5.5vw, 27px); line-height: 1.16; letter-spacing: .15px; }
+  .app-header .subtitle { font-size: 12px; }
+  .utility-credit { font-size: 15px; line-height: 1.25; }
+  .tab-bar { gap: 5px; margin-bottom: 12px; }
+  .tab-button { min-height: 43px; padding: 7px 4px; font-size: 10.5px; line-height: 1.2; }
+  .shell-input-grid { grid-template-columns: minmax(0, 1fr); gap: 11px; }
+  .shell-field > span { min-height: 0; align-items: center; }
+  .shell-panel { padding: 13px; margin: 11px 0; border-radius: 11px; }
+  .shell-section-heading { gap: 8px; margin-bottom: 13px; }
+  .shell-section-number { width: 28px; height: 28px; flex-basis: 28px; }
+  .shell-course-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: stretch; }
+  .shell-course-count { width: 100%; }
+  .shell-course-summary { padding: 0; }
+  .shell-fill-button { width: 100%; }
+  .shell-course-input-table td:first-child { width: 48%; }
+  .shell-course-input-table input { width: 100%; max-width: none; }
+  .shell-result-tabs { gap: 4px; }
+  .shell-result-tab { flex: 0 0 auto; min-width: 132px; padding: 9px 8px; font-size: 9.5px; }
+  .shell-result-panel { padding: 12px; }
+  .shell-result-table th, .shell-result-table td { padding: 7px 6px; }
+  .shell-intro { align-items: flex-start; flex-wrap: wrap; gap: 9px; }
+  .shell-reset-light { margin-left: auto; }
+  #nozzle-panel .input-panel, #nozzle-panel > .result-card { max-width: none; }
+}
