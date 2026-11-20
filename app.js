@@ -414,6 +414,7 @@
   });
   $('manhole-reset').addEventListener('click',()=>{
     generalIds.forEach(id=>$(id).value='');
+    $('mh-corrosion-allowance').value='1.5';
     diaSelect.value=''; codeSelect.value='';
     cpInput.value=''; bfInput.value=''; neckInput.value='';
     calculateManhole();
@@ -437,7 +438,7 @@
 (() => {
   const $s = id => document.getElementById(`shell-${id}`);
   const MAX_COURSES = 18;
-  const DEFAULT_HEIGHTS = [2, 1.6, 2.5, 2, 1.3, 1.3, 0.7, 0.7];
+  const DEFAULT_HEIGHTS = Array(MAX_COURSES).fill(1.5);
   let activeResult = 'design';
   let lastShellResults = [];
 
@@ -475,7 +476,7 @@
       label.textContent=`${ordinal(i+1)} Shell Course`; label.htmlFor=`shell-course-${i}`;
       const input=document.createElement('input');
       input.type='number'; input.min='0'; input.step='0.01'; input.id=`shell-course-${i}`;
-      input.className='shell-course-height'; input.value=old[i] ?? DEFAULT_HEIGHTS[i] ?? '1.0';
+      input.className='shell-course-height'; input.value=old[i] ?? DEFAULT_HEIGHTS[i] ?? 1.5;
       input.setAttribute('aria-label',`${ordinal(i+1)} shell course height in metres`);
       input.addEventListener('input',calculateShell);
       td1.appendChild(label); td2.appendChild(input); tr.append(td1,td2); $s('course-rows').appendChild(tr);
@@ -495,7 +496,7 @@
       $s('height-check').className='shell-height-check warning';
     } else if(Number.isFinite(H)) {
       $s('height-check').textContent=`Total course height: ${fmt(sum)} m — matches tank height.`;
-      $s('height-check').className='shell-height-check';
+      $s('height-check').className='shell-height-check match';
     } else {
       $s('height-check').textContent='Enter valid tank height and shell-course heights.';
       $s('height-check').className='shell-height-check warning';
@@ -544,14 +545,31 @@
 
   function renderShellResults(rows) {
     const configs={
-      design:{title:'Design Thickness (mm)',subtitle:'Design and nominal thickness for each shell course, calculated using the attached Excel methodology.',cols:[['is803','As per IS 803 – Design'],['is803Nominal','As per IS 803 – Nominal'],['api650','As per API 650 – Design'],['api650Nominal','As per API 650 – Nominal']]},
-      entire:{title:'Retiring Thickness – Entire Shell (mm)',subtitle:'Retiring thickness calculated using the two requested reference methods.',cols:[['bulletin','As per Bulletin 09 dated 30.05.1994'],['api653','As per API 653']]},
-      corroded:{title:'Retiring Thickness – Specific Area of a Corroded Plate as per API 653 (mm)',subtitle:'Local shell-plate retiring thickness; refer to the away-from-weld and near-weld definitions in the source workbook.',cols:[['away','Away from weld*'],['near','Near weld*']]}
+      design:{title:'Design Thickness (mm)',grouped:true,cols:[['is803','Design'],['is803Nominal','Nominal'],['api650','Design'],['api650Nominal','Nominal']]},
+      entire:{title:'Retiring Thickness – Entire Shell (mm)',cols:[['bulletin','As per Bulletin 09 dated 30.05.1994'],['api653','As per API 653']]},
+      corroded:{title:'Retiring Thickness – Specific Area of a Corroded Plate as per API 653 (mm)',cols:[['away','Away from weld'],['near','Near weld']]}
     };
     const config=configs[activeResult],table=document.createElement('table'); table.className='shell-result-table';
-    const thead=document.createElement('thead'),hr=document.createElement('tr');
-    ['Shell course','Course height (m)',...config.cols.map(c=>c[1])].forEach(t=>{const th=document.createElement('th');th.textContent=t;hr.appendChild(th);});
-    thead.appendChild(hr);table.appendChild(thead);
+    if(activeResult==='design') table.classList.add('design-result-table');
+    const thead=document.createElement('thead');
+    if(config.grouped) {
+      const groupRow=document.createElement('tr');
+      ['Shell course','Course height (m)'].forEach((label)=>{
+        const th=document.createElement('th'); th.textContent=label; th.rowSpan=2; th.className='shell-rowspan-head'; groupRow.appendChild(th);
+      });
+      [['As per IS 803',2],['As per API 650',2]].forEach(([label,span])=>{
+        const th=document.createElement('th'); th.textContent=label; th.colSpan=span; th.className='shell-group-head'; groupRow.appendChild(th);
+      });
+      thead.appendChild(groupRow);
+      const detailRow=document.createElement('tr');
+      config.cols.forEach((col)=>{const th=document.createElement('th');th.textContent=col[1];detailRow.appendChild(th);});
+      thead.appendChild(detailRow);
+    } else {
+      const hr=document.createElement('tr');
+      ['Shell course','Course height (m)',...config.cols.map(c=>c[1])].forEach(t=>{const th=document.createElement('th');th.textContent=t;hr.appendChild(th);});
+      thead.appendChild(hr);
+    }
+    table.appendChild(thead);
     const tbody=document.createElement('tbody');
     rows.forEach(row=>{
       const tr=document.createElement('tr');
@@ -566,9 +584,8 @@
     table.appendChild(tbody);
     const panel=$s('result-panel');panel.innerHTML='';
     const title=document.createElement('h3');title.className='shell-result-title';title.textContent=config.title;
-    const sub=document.createElement('p');sub.className='shell-result-subtitle';sub.textContent=config.subtitle;
     const wrap=document.createElement('div');wrap.className='shell-course-table-wrap';wrap.appendChild(table);
-    panel.append(title,sub,wrap);
+    panel.append(title,wrap);
   }
 
   document.querySelectorAll('.shell-result-tab').forEach(tab=>tab.addEventListener('click',()=>{
@@ -582,11 +599,19 @@
     $s(id).addEventListener('input',calculateShell);
     $s(id).addEventListener('change',calculateShell);
   });
+  $('fill-all-heights').addEventListener('click',()=>{
+    const fields=[...document.querySelectorAll('.shell-course-height')];
+    if(!fields.length) return;
+    const firstValue=fields[0].value.trim();
+    if(!firstValue) return;
+    fields.forEach(field=>{field.value=firstValue;});
+    calculateShell();
+  });
   $s('course-count').addEventListener('change',makeCourseRows);
   window.addEventListener('mh-general-sync',calculateShell);
   $('shell-reset').addEventListener('click',()=>{
     $s('diameter').value='';$s('tank-height').value='';$s('radiography').value='';
-    $s('joint-efficiency').value='';$s('corrosion-allowance').value='';$s('specific-gravity').value='';
+    $s('joint-efficiency').value='';$s('corrosion-allowance').value='1.5';$s('specific-gravity').value='';
     $s('course-count').value='8';makeCourseRows();
   });
   makeCourseRows();
